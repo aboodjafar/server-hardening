@@ -1,5 +1,5 @@
 ---
-- hosts: rhce1.abood.com
+- hosts: 
   become: yes
   tasks:
    - name: Disable ipv6 networking
