@@ -1,0 +1,31 @@
+---
+- hosts: rhce1.abood.com
+  become: yes
+  tasks:
+   - name: Disable ipv6 networking
+     sysctl:
+       name: "{{ item.name }}"
+       value: "{{ item.value }}"
+       state: present
+       reload: yes
+       ignoreerrors: yes
+     with_items:
+        - { name: net.ipv6.conf.all.disable_ipv6, value: 1 }
+        - { name: net.ipv6.conf.default.disable_ipv6, value: 1 }
+
+   - name: Add AddressFamily to avoid breaking SSH Xforwarding
+     lineinfile:
+       path: /etc/ssh/sshd_config
+       regexp: '^#?AddressFamily'
+       line: AddressFamily inet
+
+   - name: Restart sshd
+     service:
+       name: sshd
+       state: restarted
+
+   - name: Disable USB storage
+     lineinfile:
+       path: /etc/modprobe.d/block_usb.conf
+       line: 'install usb-storage /bin/true'
+       create: yes
